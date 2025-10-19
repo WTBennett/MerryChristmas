@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cozy Scrapbook — Christmas Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#2b1b17; /* deep warm brown */
+      --bg2:#55302b; /* soft red-brown */
+      --paper:#f6efe6;
+      --accent:#d99a6c;
+      --shadow: rgba(14,10,8,0.35);
+      --glass: rgba(255,255,255,0.06);
+    }
+    html,body{height:100%;margin:0;font-family:Kalam, 'Amatic SC', system-ui, sans-serif;background: linear-gradient(180deg,var(--bg1), var(--bg2));color:#fff;}
+    /* gentle vignette */
+    body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 50% 25%, rgba(255,200,140,0.06) 0%, transparent 25%), linear-gradient(180deg, rgba(0,0,0,0.15), transparent 40%);pointer-events:none}
+
+    .scene{max-width:1200px;margin:30px auto 80px;padding:24px;position:relative;}
+
+    header{display:flex;align-items:center;gap:18px}
+    .title{font-family:'Amatic SC',cursive;font-size:44px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,0.5)}
+    .subtitle{font-size:18px;opacity:0.9}
+
+    /* fairy lights across the top */
+    .lights{position:relative;height:120px;margin-top:18px}
+    .light-string{position:absolute;left:0;right:0;top:36px;height:0;border-top:2px dashed rgba(255,255,255,0.06)}
+    .bulb{position:absolute;top:24px;width:14px;height:20px;border-radius:50%;background:#ffe9b8;box-shadow:0 4px 14px rgba(255,200,100,0.12), 0 0 18px rgba(255,170,60,0.08);transform:translateX(-50%);}
+    /* different colors */
+    .bulb.red{background:#ffb3b3}
+    .bulb.green{background:#c6ffd6}
+    .bulb.blue{background:#bfe1ff}
+    .bulb.yellow{background:#fff1b0}
+    /* twinkle */
+    @keyframes twinkle {0%,100%{opacity:0.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
+    .bulb{animation:twinkle 2.8s infinite ease-in-out;}
+    .bulb:nth-child(3n){animation-duration:3.3s}
+    .bulb:nth-child(4n){animation-duration:2.2s}
+
+    /* scrapbook area */
+    .board{margin-top:6px;padding:24px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));border-radius:18px;box-shadow:0 8px 30px var(--shadow);min-height:520px}
+
+    .polaroid-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:28px;align-items:start}
+    .hanger{position:relative;padding-top:28px}
+    .string{position:absolute;left:50%;top:0;height:28px;width:2px;background:linear-gradient(#d3c0b0,#b39a7f);transform:translateX(-50%)}
+
+    .polaroid{
+      width:100%;max-width:260px;margin:0 auto; perspective:1200px;cursor:pointer;position:relative;
+    }
+    .card{width:100%;padding:12px;background:var(--paper);border-radius:8px;border-bottom-left-radius:24px;border-bottom-right-radius:24px;box-shadow:0 8px 18px rgba(0,0,0,0.25);transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.9,.3,1);height:320px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;}
+    .polaroid .card.flipped{transform:rotateY(180deg)}
+
+    .card .front, .card .back{position:absolute;inset:12px;border-radius:6px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;}
+    .card .front{background:linear-gradient(#fff,#f7f2eb);padding:18px 12px 36px;}
+    .card .back{transform:rotateY(180deg);padding:6px;overflow:hidden}
+
+    .photo{width:100%;height:210px;background:#ddd;border-radius:6px;box-shadow:inset 0 -8px 18px rgba(0,0,0,0.06);background-size:cover;background-position:center}
+    .caption{margin-top:12px;font-size:16px;color:#4b342b;text-align:center;min-height:2.2em}
+
+    /* message/backside */
+    .message-box{width:100%;height:100%;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:18px;box-sizing:border-box}
+    .handwritten{font-family: 'Amatic SC', cursive;color:#2b1b17;font-size:20px;line-height:1.25}
+    .note-label{font-size:12px;color:#6b5a52;margin-bottom:8px}
+
+    /* tape decoration */
+    .tape{position:absolute;left:50%;transform:translateX(-50%);top:-6px;width:56px;height:18px;background:linear-gradient(90deg,#fff4cf,#ffe9c6);border-radius:4px;box-shadow:0 6px 12px rgba(0,0,0,0.12);transform-origin:center;opacity:0.95}
+    .tape:after{content:"";position:absolute;left:8px;right:8px;top:2px;height:8px;background:linear-gradient(90deg,rgba(0,0,0,0.02),rgba(0,0,0,0.04));border-radius:2px}
+
+    /* small photo label under polaroid like sticky caption */
+    .small-caption{margin-top:8px;font-size:13px;color:#fff;opacity:0.95;text-align:center}
+
+    /* christmas tree */
+    .tree{position:absolute;right:26px;bottom:-20px;width:160px;transform:scale(0.95);filter:drop-shadow(0 12px 22px rgba(0,0,0,0.5))}
+
+    /* footer*/
+    footer{margin-top:32px;text-align:center;color:rgba(255,255,255,0.9);opacity:0.95}
+
+    /* snow */
+    .snow{pointer-events:none;position:fixed;inset:0;z-index:0}
+    .snow:after,.snow:before{content:"";position:absolute;left:0;right:0;top:-10px;height:100%;background-image:radial-gradient(#fff 1px, transparent 1px);background-size:8px 8px;opacity:0.03;animation:fall 18s linear infinite}
+    .snow:before{background-size:6px 6px;opacity:0.02;animation-duration:28s}
+    @keyframes fall{0%{transform:translateY(-10%)}100%{transform:translateY(120%)}}
+
+    /* responsive tweaks */
+    @media (max-width:720px){.polaroid-grid{gap:18px}.card{height:300px}}
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <header>
+      <div>
+        <h1 class="title">Merry Christmas — A Year of Moments</h1>
+        <div class="subtitle">Click a Polaroid to flip it over and reveal the photo and a little note.</div>
+      </div>
+    </header>
+
+    <div class="lights" aria-hidden="true">
+      <div class="light-string"></div>
+      <!-- positions for bulbs across the top -->
+      <div style="position:absolute;left:6%;" class="bulb red"></div>
+      <div style="position:absolute;left:14%;" class="bulb green"></div>
+      <div style="position:absolute;left:22%;" class="bulb blue"></div>
+      <div style="position:absolute;left:30%;" class="bulb yellow"></div>
+      <div style="position:absolute;left:38%;" class="bulb red"></div>
+      <div style="position:absolute;left:46%;" class="bulb green"></div>
+      <div style="position:absolute;left:54%;" class="bulb blue"></div>
+      <div style="position:absolute;left:62%;" class="bulb yellow"></div>
+      <div style="position:absolute;left:70%;" class="bulb red"></div>
+      <div style="position:absolute;left:78%;" class="bulb green"></div>
+      <div style="position:absolute;left:86%;" class="bulb blue"></div>
+      <div style="position:absolute;left:94%;" class="bulb yellow"></div>
+    </div>
+
+    <div class="board">
+      <div class="polaroid-grid" id="grid">
+        <!-- We generate 24 polaroids (2 per month). Replace placeholder images and messages in the HTML. -->
+        <!-- Each polaroid is inside a .hanger (for string) -->
+        <!-- Template start -->
+        
+        <!-- We'll include 24 items -->
+        <script>
+          const grid = [];
+          for(let i=1;i<=24;i++){
+            grid.push({id:i,photo:`https://via.placeholder.com/420x320?text=Photo+${i}`,caption:`Caption ${i}`,note:`A cozy note for photo ${i}. Happy memories!`});
+          }
+          const container = document.currentScript.parentElement;
+          const frag = document.createDocumentFragment();
+          grid.forEach((item,idx)=>{
+            const hang = document.createElement('div');
+            hang.className='hanger';
+            hang.innerHTML = `
+            <div class="string" aria-hidden="true"></div>
+            <div class="polaroid" tabindex="0" role="button" aria-pressed="false" data-id="${item.id}">
+              <div class="card" data-flip="false">
+                <div class="front">
+                  <div class="tape"></div>
+                  <div class="photo" style="background-image:url('${item.photo}')" aria-hidden="true"></div>
+                  <div class="caption">${item.caption}</div>
+                </div>
+                <div class="back">
+                  <div class="message-box">
+                    <div class="note-label">A little note</div>
+                    <div class="handwritten">${item.note}</div>
+                    <div style="flex:1"></div>
+                    <div style="font-size:12px;color:#6b5a52">Click again to flip back</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            `;
+            frag.appendChild(hang);
+          });
+          container.appendChild(frag);
+        </script>
+
+      </div>
+
+      <footer>Wishing you warmth, joy, and a cozy holiday. — With love</footer>
+
+    </div>
+
+    <!-- Christmas tree SVG with tiny lights -->
+    <svg class="tree" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <g transform="translate(10,0)">
+        <rect x="72" y="220" width="56" height="28" rx="6" fill="#6b3d2b"></rect>
+        <path d="M100 28 L40 140 L70 140 L26 202 L174 202 L130 140 L160 140 L100 28" fill="#154d22" stroke="#0f3a18" stroke-width="1"/>
+        <path d="M100 80 L60 160 L80 160 L44 206 L156 206 L120 160 L140 160 L100 80" fill="#1f6b2a"/>
+        <!-- lights on tree -->
+        <circle cx="92" cy="110" r="3" fill="#ffd56b" filter="url(#glow)"></circle>
+        <circle cx="110" cy="132" r="3" fill="#ffb3b3" filter="url(#glow)"></circle>
+        <circle cx="78" cy="138" r="3" fill="#bfe1ff" filter="url(#glow)"></circle>
+        <circle cx="100" cy="158" r="3" fill="#c6ffd6" filter="url(#glow)"></circle>
+      </g>
+    </svg>
+
+  </div>
+
+  <div class="snow" aria-hidden="true"></div>
+
+  <script>
+    // Handle flip interaction
+    document.addEventListener('click', (e)=>{
+      const p = e.target.closest('.polaroid');
+      if(!p) return;
+      const card = p.querySelector('.card');
+      const flipped = card.classList.toggle('flipped');
+      p.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+    });
+    // keyboard accessibility (Enter or Space to flip)
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' '){
+        const active = document.activeElement;
+        if(active && active.classList && active.classList.contains('polaroid')){
+          e.preventDefault();
+          const card = active.querySelector('.card');
+          const flipped = card.classList.toggle('flipped');
+          active.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+        }
+      }
+    });
+
+    // small enhancement: slightly rotate some polaroids for that handmade look
+    document.querySelectorAll('.polaroid').forEach((p,i)=>{
+      const r = (Math.random()*10-5).toFixed(2);
+      p.style.transform = `rotate(${r}deg)`;
+    });
+
+    // make bulbs twinkle by toggling opacity on a random interval (extra sparkle)
+    const bulbs = document.querySelectorAll('.bulb');
+    setInterval(()=>{
+      const n = Math.floor(Math.random()*bulbs.length);
+      bulbs[n].style.opacity = (Math.random()*0.4+0.6).toFixed(2);
+    },900);
+
+  </script>
+</body>
+</html>
