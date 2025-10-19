@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Wrapped Book Yearbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg1:#2b1b17;
+  --bg2:#55302b;
+  --snow:#fff;
+  --book:#f6efe6;
+  --shadow: rgba(14,10,8,0.35);
+}
+* { box-sizing: border-box; }
+body {margin:0; font-family:Kalam,'Amatic SC',system-ui,sans-serif; background: linear-gradient(180deg,var(--bg1), var(--bg2)); overflow-x:hidden;}
+
+/* Snow animation */
+.snow {position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.snow div {position:absolute;width:5px;height:5px;background:var(--snow);border-radius:50%;opacity:0.8;animation:fall linear infinite;}
+@keyframes fall {0%{transform:translateY(-10vh)}100%{transform:translateY(110vh)}}
+
+/* Wrapped book */
+#wrapper {position:relative;width:300px;height:400px;margin:80px auto; perspective:1200px;}
+.book-wrapper {width:100%; height:100%; position:relative; transform-style: preserve-3d; transition: transform 1s ease;}
+.wrapped {background:#d33; border-radius:12px; width:100%; height:100%; position:absolute; top:0; left:0; display:flex; justify-content:center; align-items:center; color:#fff; font-size:20px; text-align:center; padding:20px; cursor:pointer; transform-origin:center center;}
+.sticker {width:60px;height:60px;background:#ffe07f;border-radius:50%;box-shadow:0 4px 10px rgba(0,0,0,0.3);position:absolute;top:20px;left:50%;transform:translateX(-50%); animation:bounce 2s infinite; display:flex; justify-content:center; align-items:center; cursor:pointer;}
+@keyframes bounce {0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
+
+/* Book cover */
+.book-cover {background:var(--book); border-radius:10px; width:100%; height:100%; position:absolute; top:0; left:0; backface-visibility:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; box-shadow:0 8px 18px var(--shadow);}
+.book-cover h1 {font-family:'Amatic SC',cursive;font-size:26px; color:#2b1b17; text-align:center; margin-bottom:10px;}
+.tree {width:120px;height:160px; margin-bottom:10px; position:relative;}
+.ornament {position:absolute; width:16px; height:16px; border-radius:50%;}
+/* doodle colors */
+.cake {background:#f4a261; animation:float 3s ease-in-out infinite;}
+.ladybird {background:#e63946; animation:float 2.5s ease-in-out infinite;}
+.tennis {background:#a8dadc; animation:float 3.5s ease-in-out infinite;}
+.cricket {background:#f1faee; animation:float 2.8s ease-in-out infinite;}
+.sausage {background:#e9c46a; animation:float 3.2s ease-in-out infinite;}
+.rope-green {background:#2a9d8f; animation:float 3.1s ease-in-out infinite;}
+.rope-blue {background:#457b9d; animation:float 2.9s ease-in-out infinite;}
+.bike {background:#f72585; animation:float 3.3s ease-in-out infinite;}
+.haircut {background:#7209b7; animation:float 3.4s ease-in-out infinite;}
+@keyframes float {0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-6px) rotate(5deg)}}
+
+/* Pages */
+.pages {position:absolute; width:100%; height:100%; top:0; left:0; transform-style:preserve-3d; transition: transform 1s ease; display:flex; overflow:hidden;}
+.page {min-width:100%; height:100%; background:var(--book); border-radius:10px; padding:20px; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; backface-visibility:hidden; position:relative; box-shadow:0 6px 16px var(--shadow);}
+.month-title {font-family:'Amatic SC',cursive; font-size:22px; margin-bottom:12px; color:#2b1b17;}
+.polaroids {display:flex; flex-wrap:wrap; gap:12px; justify-content:center;}
+.polaroid {width:80px; height:100px; background:#fff; border-radius:6px; box-shadow:0 4px 10px rgba(0,0,0,0.3); perspective:600px; cursor:pointer; position:relative;}
+.card {width:100%; height:100%; position:absolute; transform-style:preserve-3d; transition: transform 0.8s;}
+.card.flipped {transform: rotateY(180deg);}
+.front, .back {position:absolute; inset:0; backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:6px;}
+.front {background:#fff;}
+.back {background:#f4f1de; transform:rotateY(180deg); font-size:12px; text-align:center; padding:4px; color:#2b1b17;}
+
+/* page nav */
+.nav {position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; background:rgba(0,0,0,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; font-size:24px; user-select:none;}
+.nav-left {left:-50px;}
+.nav-right {right:-50px;}
+
+/* tooltip */
+.doodle {position:absolute; width:24px; height:24px; border-radius:4px; cursor:pointer;}
+.tooltip {position:absolute; background:rgba(0,0,0,0.7); color:#fff; padding:2px 6px; font-size:10px; border-radius:4px; pointer-events:none; opacity:0; transition:opacity 0.3s;}
+</style>
+</head>
+<body>
+<div class="snow" id="snow"></div>
+<div id="wrapper">
+  <div class="book-wrapper" id="bookWrapper">
+    <div class="wrapped" id="wrapped">
+      <div>Click the sticker to unwrap your digital yearbook!</div>
+      <div class="sticker" id="sticker">🎁</div>
+    </div>
+    <div class="book-cover" id="bookCover" style="display:none;">
+      <h1>A Year of Memories</h1>
+      <div class="tree" id="tree"></div>
+      <div>Click to open the book</div>
+    </div>
+    <div class="pages" id="pages" style="display:none;"></div>
+  </div>
+</div>
+<div class="tooltip" id="tooltip">Tooltip</div>
+<script>
+// Snow generation
+const snow = document.getElementById('snow');
+for(let i=0;i<80;i++){let s=document.createElement('div');s.style.left=Math.random()*100+'%';s.style.animationDuration=(3+Math.random()*5)+'s';s.style.width=s.style.height=(2+Math.random()*4)+'px';snow.appendChild(s);}
+
+// Sticker unwrap
+const sticker=document.getElementById('sticker');
+const wrapped=document.getElementById('wrapped');
+const bookCover=document.getElementById('bookCover');
+const bookWrapper=document.getElementById('bookWrapper');
+sticker.addEventListener('click',()=>{
+  wrapped.style.transform='rotateY(90deg)';
+  setTimeout(()=>{wrapped.style.display='none'; bookCover.style.display='flex';},800);
+});
+
+// Book cover open
+const pages=document.getElementById('pages');
+bookCover.addEventListener('click',()=>{
+  bookCover.style.transform='rotateY(90deg)';
+  setTimeout(()=>{bookCover.style.display='none'; pages.style.display='flex';},800);
+});
+
+// Tree doodles
+const tree=document.getElementById('tree');
+const doodles=[{class:'cake',tooltip:'Your text here'},{class:'ladybird',tooltip:'Your text here'},{class:'tennis',tooltip:'Your text here'},{class:'cricket',tooltip:'Your text here'},{class:'sausage',tooltip:'Your text here'},{class:'rope-green',tooltip:'Your text here'},{class:'rope-blue',tooltip:'Your text here'},{class:'bike',tooltip:'Your text here'},{class:'haircut',tooltip:'Your text here'}];
+doodles.forEach(d=>{let el=document.createElement('div');el.className='ornament doodle '+d.class);el.dataset.tooltip=d.tooltip;el.style.top=Math.random()*100+'px';el.style.left=Math.random()*100+'px';tree.appendChild(el);});
+
+// Tooltip
+const tooltip=document.getElementById('tooltip');
+document.addEventListener('mousemove',e=>{
+  tooltip.style.top=e.pageY+15+'px';
+  tooltip.style.left=e.pageX+15+'px';
+});
+document.addEventListener('mouseover',e=>{if(e.target.classList.contains('doodle')){tooltip.innerText=e.target.dataset.tooltip; tooltip.style.opacity=1;} });
+document.addEventListener('mouseout',e=>{if(e.target.classList.contains('doodle')){tooltip.style.opacity=0;} });
+
+// Pages content
+const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let currentPage=0;
+months.forEach(month=>{
+  let page=document.createElement('div');page.className='page';
+  let title=document.createElement('div');title.className='month-title';title.innerText=month; page.appendChild(title);
+  let polaroids=document.createElement('div');polaroids.className='polaroids';
+  for(let i=1;i<=5;i++){
+    let pol=document.createElement('div');pol.className='polaroid';
+    let card=document.createElement('div');card.className='card';
+    let front=document.createElement('div');front.className='front'; front.innerText='Photo';
+    let back=document.createElement('div');back.className='back'; back.innerText='Caption';
+    card.appendChild(front); card.appendChild(back); pol.appendChild(card);
+    pol.addEventListener('click',()=>{card.classList.toggle('flipped');});
+    polaroids.appendChild(pol);
+  }
+  page.appendChild(polaroids);
+  pages.appendChild(page);
+});
+
+// Navigation arrows
+const navLeft=document.createElement('div');navLeft.className='nav nav-left';navLeft.innerHTML='&#8592;';
+const navRight=document.createElement('div');navRight.className='nav nav-right';navRight.innerHTML='&#8594;';
+pages.appendChild(navLeft); pages.appendChild(navRight);
+function showPage(idx){ pages.style.transform=`translateX(-${idx*100}%)`; }
+navLeft.addEventListener('click',()=>{currentPage=(currentPage-1+months.length)%months.length; showPage(currentPage);});
+navRight.addEventListener('click',()=>{currentPage=(currentPage+1)%months.length; showPage(currentPage);});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){navLeft.click();} if(e.key==='ArrowRight'){navRight.click();} });
+</script>
+</body>
+</html>
