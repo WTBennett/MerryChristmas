@@ -1,289 +1,464 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Christmas Yearbook</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Wrapped Yearbook — A Year of Memories</title>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-  /* ------------------ GLOBAL ------------------ */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: "Comic Sans MS", cursive, sans-serif;
-    background: linear-gradient(to bottom, #b22222, #f8e8d0);
-    overflow: hidden;
-    height: 100vh;
+  :root{
+    --bg-image: url('bg.png'); /* <- Place your hand-drawn background file named bg.png here */
+    --warm-1: #2b1b17;
+    --warm-2: #5a2e28;
+    --paper: #f6efe6;
+    --accent: #d99a6c;
+    --sticker: #ffe07f;
+    --shadow: rgba(10,8,6,0.35);
+  }
+  html,body{height:100%;margin:0;font-family:Kalam, system-ui, sans-serif;background: #1b2740; color:#2b1b17; -webkit-font-smoothing:antialiased;}
+  /* full-screen illustrated winter background */
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:-20;
+    background-image: var(--bg-image);
+    background-size: cover; background-position:center;
+    filter: saturate(1.02) contrast(0.98);
+  }
+  /* warm vignette for coziness */
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-10;
+    background: radial-gradient(ellipse at 50% 10%, rgba(255,240,220,0.06) 0%, transparent 25%),
+                linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.28));
+    pointer-events:none;
   }
 
-  /* ------------------ SNOW ------------------ */
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: url("https://www.transparenttextures.com/patterns/snow.png");
-    opacity: 0.4;
-    animation: snow 30s linear infinite;
-    z-index: 0;
-  }
-  @keyframes snow {
-    0% { background-position: 0 0; }
-    100% { background-position: 0 1000px; }
+  /* Page container */
+  .stage{width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;box-sizing:border-box;position:relative;z-index:1}
+  /* floating sparkles */
+  .sparkles{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+  /* Book wrapper (center) */
+  #bookRoot{width:920px;max-width:94vw;height:620px;max-height:84vh; perspective:1800px; position:relative; display:flex; align-items:center; justify-content:center;}
+  .book-scene{width:100%; height:100%; position:relative; transform-style:preserve-3d;}
+
+  /* Wrapping paper layer (front) - hand-drawn feel via SVG background below */
+  .wrapping{
+    position:absolute; inset:0; border-radius:16px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.45);
+    transform-origin:center center; transition: transform 1s cubic-bezier(.2,.9,.25,1), opacity 0.6s ease;
+    z-index:30; display:flex; align-items:center; justify-content:center; flex-direction:column;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.05));
   }
 
-  /* ------------------ WRAPPED BOOK ------------------ */
-  .wrapped-book {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 420px; height: 520px;
-    background: repeating-linear-gradient(
-      45deg,
-      #e63946,
-      #e63946 20px,
-      #f1faee 20px,
-      #f1faee 40px
-    );
-    border: 4px solid #a4161a;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-    transition: transform 2s ease, opacity 2s ease;
-    z-index: 10;
+  /* We draw a hand-drawn wrapping-paper-like SVG as background inside this element */
+  .wrapping .paper {
+    position:absolute; inset:0; background: repeating-linear-gradient(45deg, rgba(255,240,230,0.04) 0 14px, rgba(0,0,0,0.02) 14px 28px);
   }
-  .ribbon {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 24px; height: 100%;
-    background: #a4161a;
-    transform: translateX(-50%);
+  /* ribbon across the book */
+  .ribbon { position:absolute; top: 42%; left:0; right:0; height:70px; display:flex; justify-content:center; transform:translateY(-50%); pointer-events:none;}
+  .ribbon .band{width:98%; height:30px; background:linear-gradient(90deg,#ffd08a,#f1a66a); border-radius:6px; box-shadow:0 6px 12px rgba(0,0,0,0.18); transform:rotate(-3deg); opacity:0.95}
+  .ribbon .band.v{position:absolute; height:98%; width:24px; left:48%; transform:translateX(-50%) rotate(8deg); background:linear-gradient(180deg,#ffd08a,#f1a66a); border-radius:6px}
+
+  /* sticker */
+  .sticker{
+    width:86px;height:86px;border-radius:999px;background:var(--sticker);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 22px rgba(0,0,0,0.25), inset 0 -6px 18px rgba(0,0,0,0.06);
+    position:relative; z-index:32; cursor:pointer; transform:translateY(0);
+    transition: transform .28s cubic-bezier(.2,.9,.25,1);
+    user-select:none;
+    animation: sticker-bounce 2400ms infinite;
   }
-  .sticker {
-    position: absolute;
-    bottom: 30px; left: 50%;
-    transform: translateX(-50%);
-    background: gold;
-    border: 3px solid #fff;
-    border-radius: 50%;
-    padding: 1.2rem 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(255,255,255,0.8);
-    animation: bounce 2s infinite, shimmer 3s infinite;
+  .sticker:after{content:'';position:absolute;inset:6px;border-radius:999px;background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08)); mix-blend-mode:overlay}
+  .sticker .icon{font-size:34px}
+  @keyframes sticker-bounce {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
   }
-  @keyframes bounce {
-    0%, 100% { transform: translate(-50%, 0); }
-    50% { transform: translate(-50%, -6px); }
-  }
-  @keyframes shimmer {
-    0% { box-shadow: 0 0 10px rgba(255,255,200,0.7); }
-    50% { box-shadow: 0 0 25px rgba(255,255,150,1); }
-    100% { box-shadow: 0 0 10px rgba(255,255,200,0.7); }
-  }
-  .unwrap {
-    transform: rotateY(90deg);
-    opacity: 0;
+  .sticker:hover{transform:translateY(-10px) scale(1.03); animation-play-state:paused}
+
+  /* small "instructions" label on top of wrapping */
+  .wrapping .label{position:absolute; top:14%; width:90%; text-align:center; font-family:'Amatic SC',cursive; font-size:20px; color:#fff; text-shadow:0 1px 0 rgba(0,0,0,0.5)}
+
+  /* Unwrap state - move the wrapping off */
+  .book-scene.unwrapped .wrapping{
+    transform: translateY(-22%) rotateX(18deg) scale(1.06); opacity:0;
+    pointer-events:none;
   }
 
-  /* ------------------ BOOK SHELL ------------------ */
-  .book-container {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 800px;
-    height: 520px;
-    perspective: 2000px;
-    display: none;
-    z-index: 5;
+  /* Book element, revealed after unwrap */
+  .book{
+    position:absolute; inset:40px; border-radius:12px; background:linear-gradient(180deg,#fffdf6,#f6eee3); box-shadow:0 32px 60px rgba(0,0,0,0.45);
+    transform-origin: left center; transform: translateZ(-60px) rotateY(0deg); transition: transform 900ms cubic-bezier(.2,.9,.25,1);
+    display:flex; flex-direction:column; overflow:hidden; z-index:20;
   }
-  .book {
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 1s ease;
+  /* closed book cover visible before opening pages */
+  .book.cover-hidden{opacity:0; transform: translateZ(-60px) rotateY(-6deg)}
+  .book .cover{
+    height:100%; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:28px; box-sizing:border-box;
+    background: linear-gradient(180deg,#fffdf6,#f3e9d8);
   }
-  .page {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    background: #fffaf0;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-    border: 1px solid #d8b384;
-    overflow: hidden;
-  }
-  .page.left { left: 0; border-radius: 12px 0 0 12px; }
-  .page.right { right: 0; border-radius: 0 12px 12px 0; }
+  .title{font-family:'Amatic SC',cursive; font-size:34px; color:#2b1b17; text-align:center}
+  .cover . { width:220px; height:260px; position:relative; margin:6px 0;}
+  /* ornaments on the tree (small circles we can position) */
+  .tree .orn{position:absolute;width:28px;height:28px;border-radius:50%;box-shadow:0 4px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+  /* doodles container */
+  .cover .doodles{position:absolute; left:14px; top:14px; right:14px; bottom:14px; pointer-events:none}
 
-  /* Flip effect */
-  .flip {
-    transform: rotateY(-180deg);
+  /* open book pages area */
+  .book-pages{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; perspective:1400px;
+    pointer-events:none; visibility:hidden;
   }
+  .book-pages.visible{pointer-events:auto; visibility:visible}
+  .book-inner{width:100%; height:100%; display:flex; transform-style:preserve-3d; transition: transform 900ms cubic-bezier(.2,.9,.25,1);}
 
-  /* ------------------ COVER PAGE ------------------ */
-  .cover-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #fffaf0;
+  /* single page (month) */
+  .page{
+    min-width:100%; height:100%; box-sizing:border-box; padding:26px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:10px;
+    backface-visibility:hidden;
   }
-  .cover-page img {
-    width: 180px;
-    filter: drop-shadow(0 0 10px rgba(255,255,180,0.6))
-            drop-shadow(0 0 15px rgba(255,255,120,0.4));
-    animation: float 3s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-  .cover-page h1 {
-    color: #8b0000;
-    font-size: 1.8rem;
-    margin-top: 15px;
-  }
-  .cover-page p {
-    max-width: 70%;
-    margin-top: 10px;
-    color: #4b2e05;
-    text-align: center;
-  }
+  .month-header{display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px}
+  .month-label{font-family:'Amatic SC',cursive; font-size:22px; color:#2b1b17}
+  .page .doodle-cluster{position:absolute; right:18px; bottom:16px; display:flex; gap:8px; pointer-events:none}
 
-  /* ------------------ POLAROID LAYOUT ------------------ */
-  .month-page {
-    padding: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-    position: relative;
+  /* Polaroid grid inside each page */
+  .polaroid-grid{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; align-content:flex-start; padding-bottom:28px}
+  .polaroid{
+    width:140px; height:170px; background:#fff; border-radius:8px; box-shadow:0 8px 16px rgba(0,0,0,0.18); padding:10px; box-sizing:border-box; perspective:900px; cursor:pointer; position:relative;
   }
-  .polaroid {
-    width: 120px;
-    height: 150px;
-    background: #fff;
-    border: 2px solid #ddd;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    transform: rotate(var(--angle));
-    transition: transform 0.3s;
-    cursor: pointer;
-  }
-  .polaroid:hover {
-    transform: rotate(0deg) scale(1.1);
-    z-index: 10;
-  }
-  .polaroid img {
-    width: 100%;
-    height: 110px;
-    object-fit: cover;
-  }
-  .polaroid p {
-    text-align: center;
-    font-size: 0.8rem;
-    padding: 4px;
-  }
+  .photo-card{width:100%; height:100%; position:relative; transform-style:preserve-3d; transition: transform 700ms; border-radius:6px;}
+  .photo-card.flipped{transform:rotateY(180deg)}
+  .photo-front, .photo-back{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; backface-visibility:hidden; border-radius:6px; overflow:hidden;}
+  .photo-front{background:#f0f0f0; font-size:14px; color:#666; display:flex; align-items:center; justify-content:center}
+  .photo-front .fake{width:120px;height:96px;background:linear-gradient(180deg,#ddd,#bbb); border-radius:4px; display:flex; align-items:center; justify-content:center; color:#6f6f6f;}
+  .photo-back{transform:rotateY(180deg); padding:8px; background:linear-gradient(180deg,#fbf6ee,#f6efe4); color:#2b1b17; font-size:13px; text-align:center}
 
-  /* ------------------ NAV BUTTONS ------------------ */
-  .nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 2rem;
-    background: rgba(255,255,255,0.7);
-    border: none;
-    cursor: pointer;
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    transition: 0.2s;
-    z-index: 20;
+  /* page navigation arrows */
+  .nav{position:absolute; top:50%; transform:translateY(-50%); width:52px; height:52px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; box-shadow:0 8px 18px rgba(0,0,0,0.35); cursor:pointer; user-select:none; z-index:50; background:linear-gradient(180deg,#4f8bff,#3266ff)}
+  .nav.left{left:-28px}
+  .nav.right{right:-28px}
+
+  /* doodles (small icons) */
+  .doodle{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;box-shadow:0 6px 12px rgba(0,0,0,0.18); cursor:pointer; position:relative}
+  .doodle.small{width:28px;height:28px;font-size:12px}
+  .doodle.tooltip-target{pointer-events:auto}
+  .tooltip{position:fixed;padding:6px 8px;background:rgba(0,0,0,0.78);color:#fff;border-radius:6px;font-size:12px;pointer-events:none;opacity:0;transform:translateY(-6px);transition: all .18s ease;}
+
+  /* responsive */
+  @media (max-width:920px){
+    #bookRoot{height:82vh}
+    .polaroid{width:120px; height:150px}
   }
-  .nav-btn:hover {
-    background: #fffae0;
+  @media (max-width:560px){
+    #bookRoot{width:96vw; height:86vh}
+    .nav{display:none}
+    .polaroid{width:110px;height:140px}
   }
-  .prev { left: -60px; }
-  .next { right: -60px; }
 </style>
 </head>
-
 <body>
+  <div class="stage">
+    <div id="bookRoot" aria-live="polite">
+      <div class="book-scene" id="scene">
 
-<!-- Wrapping Intro -->
-<div class="wrapped-book" id="wrappedBook">
-  <div class="ribbon"></div>
-  <button class="sticker" id="sticker">Open Me 🎁</button>
-</div>
+        <!-- Wrapping (front-most) -->
+        <div class="wrapping" id="wrapping">
+          <div class="paper" aria-hidden="true">
+            <!-- hand-drawn-ish decorations layered with small inline SVGs for a playful look -->
+            <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" style="display:block">
+              <!-- background color -->
+              <rect width="100%" height="100%" fill="#d94b3b"/>
+              <!-- loose stars & stripes pattern (hand-drawn feel) -->
+              <g fill="none" stroke="#ffdf9e" stroke-width="6" stroke-linecap="round">
+                <path d="M40 80c80-40 160 20 240-10s160-40 240 10 160-30 240 0" opacity="0.12"/>
+                <path d="M0 200c120-40 240 20 360-10s240-40 360 10 240-30 360 0" opacity="0.06"/>
+              </g>
+              <!-- some star shapes -->
+              <g transform="translate(40,40)" fill="#ffd98a" opacity="0.95">
+                <circle cx="24" cy="24" r="6"/><circle cx="120" cy="90" r="9"/><circle cx="310" cy="48" r="8"/>
+                <circle cx="500" cy="96" r="10"/><circle cx="700" cy="44" r="7"/>
+              </g>
+              <!-- holly & candy stripes -->
+              <g transform="translate(60,420)" opacity="0.85">
+                <rect width="680" height="30" fill="#f6c797" rx="6"/>
+                <path d="M80 0 q20 -18 40 0 q20 -18 40 0" fill="#bde4c5" opacity="0.8"></path>
+              </g>
+            </svg>
+          </div>
 
-<!-- Book -->
-<div class="book-container" id="bookContainer">
-  <button class="nav-btn prev" id="prevBtn">⟨</button>
-  <div class="book" id="book">
+          <div class="ribbon" aria-hidden="true">
+            <div class="band"></div>
+            <div class="band v"></div>
+          </div>
 
-    <!-- COVER PAGE -->
-    <div class="page left cover-page">
-      <img src="christmas tree.png" alt="Christmas Tree">
-      <h1>Merry Christmas!</h1>
-      <p>This year I’ve moved into the digital space — this project is to share memories and learn new skills while giving back to you.</p>
+          <div class="sticker" id="sticker" role="button" tabindex="0" aria-label="Click to unwrap the book">
+            <div class="icon">🎁</div>
+          </div>
+
+          <div class="label">Click the sticker to unwrap your yearbook — I've moved into the digital space!</div>
+        </div>
+
+        <!-- Book object -->
+        <div class="book" id="book" aria-hidden="true" role="application" aria-label="Yearbook">
+          <!-- Cover (shows before opening) -->
+          <div class="cover" id="coverView">
+            <div class="title">A Year of Memories</div>
+
+            <div class="tree" id="coverTree" aria-hidden="true">
+              <!-- SVG-style stylized tree -->
+              <svg viewBox="0 0 200 260" width="220" height="260" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2.2" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
+                <g transform="translate(10,0)">
+                  <rect x="82" y="210" width="36" height="30" rx="4" fill="#6b3d2b"></rect>
+                  <path d="M100 30 L52 120 L78 120 L36 188 L164 188 L122 120 L148 120 L100 30" fill="#1f6b2a" stroke="#0f3a18" stroke-width="1.5"/>
+                  <!-- ornaments (we'll position some items as icons) -->
+                  <circle cx="96" cy="98" r="8" fill="#ffd56b" filter="url(#glow)"/>
+                  <circle cx="78" cy="132" r="8" fill="#ffb3b3" filter="url(#glow)"/>
+                  <circle cx="116" cy="132" r="8" fill="#bfe1ff" filter="url(#glow)"/>
+                  <circle cx="100" cy="156" r="8" fill="#c6ffd6" filter="url(#glow)"/>
+                  <!-- simple bike icon -->
+                  <g transform="translate(65,150) scale(.9)" stroke="#2b1b17" stroke-width="1.4" fill="none">
+                    <circle cx="8" cy="8" r="6" stroke-linecap="round"/>
+                    <circle cx="30" cy="8" r="6"/>
+                    <path d="M8 8 L18 2 L30 8" />
+                  </g>
+                  <!-- rope shaped ornament -->
+                  <path d="M134 82 q6 12 0 24 q-10 18 -30 8" stroke="#2a9d8f" stroke-width="3" fill="none" stroke-linecap="round"/>
+                </g>
+              </svg>
+            </div>
+
+            <div style="margin-top:6px;color:#6b4d42;font-size:14px;text-align:center;max-width:78%">Decorated with my favourite things — click the cover to open the book</div>
+          </div>
+
+          <!-- Pages (hidden until cover clicked) -->
+          <div class="book-pages" id="bookPages" aria-hidden="true">
+            <div class="nav left" id="navLeft" role="button" aria-label="Previous month" tabindex="0">&#9664;</div>
+            <div class="nav right" id="navRight" role="button" aria-label="Next month" tabindex="0">&#9654;</div>
+
+            <div class="book-inner" id="bookInner" style="transform:translateX(0%)">
+              <!-- Pages inserted by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
-
-    <!-- JANUARY PAGE EXAMPLE -->
-    <div class="page right month-page" id="page1">
-      <div class="polaroid" style="--angle: -3deg;">
-        <img src="https://placekitten.com/200/200">
-        <p>Memory 1</p>
-      </div>
-      <div class="polaroid" style="--angle: 4deg;">
-        <img src="https://placekitten.com/201/200">
-        <p>Memory 2</p>
-      </div>
-      <div class="polaroid" style="--angle: -5deg;">
-        <img src="https://placekitten.com/202/200">
-        <p>Memory 3</p>
-      </div>
-      <div class="polaroid" style="--angle: 2deg;">
-        <img src="https://placekitten.com/203/200">
-        <p>Memory 4</p>
-      </div>
-      <div class="polaroid" style="--angle: -1deg;">
-        <img src="https://placekitten.com/204/200">
-        <p>Memory 5</p>
-      </div>
-    </div>
-
-    <!-- Add more month pages (February, March, etc.) following the same pattern -->
   </div>
-  <button class="nav-btn next" id="nextBtn">⟩</button>
-</div>
+
+  <!-- tooltip used for doodles -->
+  <div id="tooltip" class="tooltip" aria-hidden="true">Your text here</div>
 
 <script>
-const sticker = document.getElementById("sticker");
-const wrapped = document.getElementById("wrappedBook");
-const bookContainer = document.getElementById("bookContainer");
-const book = document.getElementById("book");
-const nextBtn = document.getElementById("nextBtn");
-const prevBtn = document.getElementById("prevBtn");
+/* ========= Utilities & initial state ========= */
+const scene = document.getElementById('scene');
+const sticker = document.getElementById('sticker');
+const wrapping = document.getElementById('wrapping');
+const book = document.getElementById('book');
+const coverView = document.getElementById('coverView');
+const bookPages = document.getElementById('bookPages');
+const bookInner = document.getElementById('bookInner');
+const tooltip = document.getElementById('tooltip');
 
-let page = 0;
+let isUnwrapped = false;
+let isOpen = false;
+let currentIndex = 0;
 
-sticker.addEventListener("click", () => {
-  wrapped.classList.add("unwrap");
-  setTimeout(() => {
-    wrapped.style.display = "none";
-    bookContainer.style.display = "block";
-  }, 1800);
-});
+/* ========== animation: unwrap wrapping paper ========== */
+function unwrapAnimation(){
+  if(isUnwrapped) return;
+  isUnwrapped = true;
+  // add class to scene so CSS moves wrapping away
+  scene.classList.add('unwrapped');
 
-nextBtn.addEventListener("click", () => {
-  page += 1;
-  book.style.transform = `rotateY(${page * -180}deg)`;
-});
+  // animate the wrapping element: slide/fade then hide
+  wrapping.style.transition = 'transform 850ms cubic-bezier(.2,.9,.25,1), opacity 550ms ease';
+  wrapping.style.transform = 'translateY(-22%) rotateX(18deg) scale(1.06)';
+  wrapping.style.opacity = '0';
+  setTimeout(()=>{ wrapping.style.display = 'none'; revealCover(); }, 700);
+}
 
-prevBtn.addEventListener("click", () => {
-  if (page > 0) {
-    page -= 1;
-    book.style.transform = `rotateY(${page * -180}deg)`;
+/* ========== reveal cover ========== */
+function revealCover(){
+  // show the book object
+  book.style.transform = 'translateZ(0px) rotateY(0deg)';
+  book.setAttribute('aria-hidden','false');
+  // tiny entrance animation
+  book.style.transition = 'transform 700ms cubic-bezier(.2,.9,.25,1), opacity 600ms ease';
+  book.style.opacity = '1';
+  // make cover clickable
+  coverView.style.cursor = 'pointer';
+  coverView.addEventListener('click', openBook);
+  coverView.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') openBook(); });
+}
+
+/* ========== open the book - show pages ========== */
+function openBook(){
+  if(isOpen) return;
+  isOpen = true;
+  // animate cover to the side, then reveal pages
+  coverView.style.transform = 'rotateY(-100deg) translateX(-40px)';
+  coverView.style.transition = 'transform 850ms cubic-bezier(.2,.9,.25,1)';
+  setTimeout(()=>{
+    coverView.style.display = 'none';
+    bookPages.classList.add('visible');
+    bookPages.setAttribute('aria-hidden','false');
+    buildPages();            // create pages content
+    showPage(0);
+  }, 700);
+}
+
+/* ========== build pages (12 months with 5 polaroids each) ========== */
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function buildPages(){
+  bookInner.innerHTML = ''; // clear
+  months.forEach((m,mi)=> {
+    const page = document.createElement('section');
+    page.className = 'page';
+    page.setAttribute('aria-label', m + ' page');
+
+    // header
+    const header = document.createElement('div');
+    header.className = 'month-header';
+    const label = document.createElement('div');
+    label.className = 'month-label';
+    label.innerText = m;
+    header.appendChild(label);
+    page.appendChild(header);
+
+    // polaroid grid
+    const grid = document.createElement('div');
+    grid.className = 'polaroid-grid';
+    // 5 placeholders
+    for(let i=0;i<5;i++){
+      const pol = document.createElement('div'); pol.className='polaroid'; pol.setAttribute('tabindex','0');
+      const card = document.createElement('div'); card.className='photo-card';
+      const front = document.createElement('div'); front.className='photo-front';
+      const fake = document.createElement('div'); fake.className='fake'; fake.innerText = `${m} • Photo ${i+1}`;
+      front.appendChild(fake);
+      const back = document.createElement('div'); back.className='photo-back';
+      back.innerText = `Caption placeholder — click to flip back.\nYour text here.`;
+      card.appendChild(front); card.appendChild(back);
+      pol.appendChild(card);
+
+      // flip on click or Enter/Space
+      pol.addEventListener('click', ()=> card.classList.toggle('flipped'));
+      pol.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); card.classList.toggle('flipped'); } });
+
+      grid.appendChild(pol);
+    }
+    page.appendChild(grid);
+
+    // doodle cluster bottom-right (some animated small items)
+    const cluster = document.createElement('div'); cluster.className='doodle-cluster';
+    const doodleList = [
+      {emoji:'🍰', txt:'Cake — your text here'},
+      {emoji:'🐞', txt:'Ladybird — your text here'},
+      {emoji:'🎾', txt:'Tennis moments'},
+      {emoji:'🏏', txt:'Cricket'},
+      {emoji:'🥐', txt:'Sausage roll'},
+      {emoji:'🧗‍♀️', txt:'Climbing rope (green)'},
+      {emoji:'🧗‍♂️', txt:'Climbing rope (blue)'},
+      {emoji:'🚲', txt:'Bike'},
+      {emoji:'💇‍♂️', txt:'Haircut chair'}
+    ];
+    // Put three doodles per page (cyclic) to avoid crowding — full set appears across book cover as well
+    for(let k=0;k<3;k++){
+      const dd = doodleList[(mi*3 + k) % doodleList.length];
+      const d = document.createElement('div'); d.className='doodle small tooltip-target';
+      d.innerText = dd.emoji;
+      d.setAttribute('data-tip', dd.txt);
+      // floating animation via JS randomization later
+      cluster.appendChild(d);
+    }
+    page.appendChild(cluster);
+
+    // append page to bookInner
+    bookInner.appendChild(page);
+  });
+
+  // attach nav listeners
+  document.getElementById('navLeft').onclick = ()=> showPage(currentIndex-1);
+  document.getElementById('navRight').onclick = ()=> showPage(currentIndex+1);
+  // keyboard nav
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowLeft') showPage(currentIndex-1);
+    if(e.key === 'ArrowRight') showPage(currentIndex+1);
+  });
+
+  // make doodles tooltip-aware
+  document.querySelectorAll('.tooltip-target').forEach(el=>{
+    el.addEventListener('mouseenter', (ev)=>{
+      tooltip.innerText = el.dataset.tip || 'Your text here';
+      tooltip.style.opacity = '1'; tooltip.style.transform = 'translateY(0px)';
+      const rect = el.getBoundingClientRect();
+      tooltip.style.left = (rect.left + rect.width/2) + 'px';
+      tooltip.style.top = (rect.top - 36) + 'px';
+    });
+    el.addEventListener('mouseleave', ()=>{ tooltip.style.opacity = '0'; tooltip.style.transform = 'translateY(-6px)'; });
+  });
+
+  // gentle random float for small doodles
+  document.querySelectorAll('.doodle').forEach((d,i)=>{
+    const delay = (Math.random()*1.2).toFixed(2);
+    d.style.transition = `transform 1200ms ease-in-out ${delay}s`;
+    setInterval(()=>{ const s = (Math.random()*7 - 3).toFixed(2); d.style.transform = `translateY(${s}px)`; }, 1600 + Math.random()*1600);
+  });
+}
+
+/* ========== page navigation (horizontal flip simulation) ========== */
+function showPage(idx){
+  if(idx < 0) idx = months.length - 1;
+  if(idx >= months.length) idx = 0;
+  currentIndex = idx;
+  // move bookInner horizontally
+  bookInner.style.transform = `translateX(-${idx * 100}%)`;
+  // subtle 3D page-curl flick
+  bookInner.style.transition = 'transform 700ms cubic-bezier(.2,.9,.25,1)';
+}
+
+/* ========== sticker click handlers ========== */
+sticker.addEventListener('click', unwrapAnimation);
+sticker.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') unwrapAnimation(); });
+
+/* ========== helpful: allow clicking anywhere on cover to open once unwrapped ========== */
+coverView.addEventListener('click', openBook);
+
+/* ========== initial decorative sparkles (snow + sparkles) ========== */
+(function makeSparkles(){
+  const container = document.createElement('div'); container.className='sparkles';
+  for(let i=0;i<40;i++){
+    const sp = document.createElement('div');
+    sp.style.position='absolute';
+    sp.style.left = (Math.random()*100)+'%';
+    sp.style.top = (Math.random()*100)+'%';
+    sp.style.width = sp.style.height = (2 + Math.random()*6) + 'px';
+    sp.style.background = 'rgba(255,255,255,' + (0.6+Math.random()*0.4) + ')';
+    sp.style.borderRadius = '50%';
+    sp.style.filter = 'blur(0.6px)';
+    sp.style.opacity = 0.9;
+    const dur = (3 + Math.random()*6).toFixed(2) + 's';
+    sp.style.transition = 'transform ' + dur + ' linear';
+    container.appendChild(sp);
+    // velocity loop
+    setInterval(()=>{ sp.style.transform = `translateY(${30 + Math.random()*12}px) translateX(${Math.random()*6-3}px)`; sp.style.opacity = (0.6+Math.random()*0.4); }, 2000 + Math.random()*2400);
   }
-});
-</script>
+  document.body.appendChild(container);
+})();
 
+/* ========== Accessibility: ensure focusable and announce changes ========== */
+sticker.setAttribute('aria-pressed','false');
+sticker.addEventListener('click', ()=> sticker.setAttribute('aria-pressed','true') );
+
+/* ========== small note: replace placeholder photos later ========= */
+/* To use your own photos: replace the .fake element inside each .photo-front with an <img src="yourphoto.jpg"> (and upload the files to your repo) */
+
+</script>
 </body>
 </html>
