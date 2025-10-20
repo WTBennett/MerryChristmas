@@ -205,32 +205,9 @@
             <div class="title">A Year of Memories</div>
 
             <div class="tree" id="coverTree" aria-hidden="true">
-              <!-- SVG-style stylized tree -->
-              <svg viewBox="0 0 200 260" width="220" height="260" preserveAspectRatio="xMidYMid meet">
-                <defs>
-                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="2.2" result="blur"/>
-                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                  </filter>
-                </defs>
-                <g transform="translate(10,0)">
-                  <rect x="82" y="210" width="36" height="30" rx="4" fill="#6b3d2b"></rect>
-                  <path d="M100 30 L52 120 L78 120 L36 188 L164 188 L122 120 L148 120 L100 30" fill="#1f6b2a" stroke="#0f3a18" stroke-width="1.5"/>
-                  <!-- ornaments (we'll position some items as icons) -->
-                  <circle cx="96" cy="98" r="8" fill="#ffd56b" filter="url(#glow)"/>
-                  <circle cx="78" cy="132" r="8" fill="#ffb3b3" filter="url(#glow)"/>
-                  <circle cx="116" cy="132" r="8" fill="#bfe1ff" filter="url(#glow)"/>
-                  <circle cx="100" cy="156" r="8" fill="#c6ffd6" filter="url(#glow)"/>
-                  <!-- simple bike icon -->
-                  <g transform="translate(65,150) scale(.9)" stroke="#2b1b17" stroke-width="1.4" fill="none">
-                    <circle cx="8" cy="8" r="6" stroke-linecap="round"/>
-                    <circle cx="30" cy="8" r="6"/>
-                    <path d="M8 8 L18 2 L30 8" />
-                  </g>
-                  <!-- rope shaped ornament -->
-                  <path d="M134 82 q6 12 0 24 q-10 18 -30 8" stroke="#2a9d8f" stroke-width="3" fill="none" stroke-linecap="round"/>
-                </g>
-              </svg>
+              <!-- christmas tree image-->
+              <img src="christmas tree.png" alt="Christmas Tree" class="tree" />
+
             </div>
 
             <div style="margin-top:6px;color:#6b4d42;font-size:14px;text-align:center;max-width:78%">Decorated with my favourite things — click the cover to open the book</div>
@@ -283,6 +260,30 @@ function unwrapAnimation(){
   setTimeout(()=>{ wrapping.style.display = 'none'; revealCover(); }, 700);
 }
 
+  /* ====== glow of christmas tree=====*/
+  .tree {
+  width: 180px;
+  max-width: 40vw;
+  margin: 1rem auto;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 180, 0.6))
+          drop-shadow(0 0 15px rgba(255, 255, 120, 0.4));
+  transition: transform 0.3s ease;
+}
+
+.tree:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 12px rgba(255, 255, 200, 0.9))
+          drop-shadow(0 0 20px rgba(255, 255, 150, 0.6));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+  
 /* ========== reveal cover ========== */
 function revealCover(){
   // show the book object
