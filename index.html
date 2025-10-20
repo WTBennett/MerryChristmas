@@ -1,153 +1,464 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Digital Wrapped Book Yearbook</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Wrapped Yearbook — A Year of Memories</title>
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg1:#2b1b17;
-  --bg2:#55302b;
-  --snow:#fff;
-  --book:#f6efe6;
-  --shadow: rgba(14,10,8,0.35);
-}
-* { box-sizing: border-box; }
-body {margin:0; font-family:Kalam,'Amatic SC',system-ui,sans-serif; background: linear-gradient(180deg,var(--bg1), var(--bg2)); overflow-x:hidden;}
+  :root{
+    --bg-image: url('bg.png'); /* <- Place your hand-drawn background file named bg.png here */
+    --warm-1: #2b1b17;
+    --warm-2: #5a2e28;
+    --paper: #f6efe6;
+    --accent: #d99a6c;
+    --sticker: #ffe07f;
+    --shadow: rgba(10,8,6,0.35);
+  }
+  html,body{height:100%;margin:0;font-family:Kalam, system-ui, sans-serif;background: #1b2740; color:#2b1b17; -webkit-font-smoothing:antialiased;}
+  /* full-screen illustrated winter background */
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:-20;
+    background-image: var(--bg-image);
+    background-size: cover; background-position:center;
+    filter: saturate(1.02) contrast(0.98);
+  }
+  /* warm vignette for coziness */
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-10;
+    background: radial-gradient(ellipse at 50% 10%, rgba(255,240,220,0.06) 0%, transparent 25%),
+                linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.28));
+    pointer-events:none;
+  }
 
-/* Snow animation */
-.snow {position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
-.snow div {position:absolute;width:5px;height:5px;background:var(--snow);border-radius:50%;opacity:0.8;animation:fall linear infinite;}
-@keyframes fall {0%{transform:translateY(-10vh)}100%{transform:translateY(110vh)}}
+  /* Page container */
+  .stage{width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;box-sizing:border-box;position:relative;z-index:1}
+  /* floating sparkles */
+  .sparkles{position:fixed;inset:0;pointer-events:none;z-index:0}
 
-/* Wrapped book */
-#wrapper {position:relative;width:300px;height:400px;margin:80px auto; perspective:1200px;}
-.book-wrapper {width:100%; height:100%; position:relative; transform-style: preserve-3d; transition: transform 1s ease;}
-.wrapped {background:#d33; border-radius:12px; width:100%; height:100%; position:absolute; top:0; left:0; display:flex; justify-content:center; align-items:center; color:#fff; font-size:20px; text-align:center; padding:20px; cursor:pointer; transform-origin:center center;}
-.sticker {width:60px;height:60px;background:#ffe07f;border-radius:50%;box-shadow:0 4px 10px rgba(0,0,0,0.3);position:absolute;top:20px;left:50%;transform:translateX(-50%); animation:bounce 2s infinite; display:flex; justify-content:center; align-items:center; cursor:pointer;}
-@keyframes bounce {0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
+  /* Book wrapper (center) */
+  #bookRoot{width:920px;max-width:94vw;height:620px;max-height:84vh; perspective:1800px; position:relative; display:flex; align-items:center; justify-content:center;}
+  .book-scene{width:100%; height:100%; position:relative; transform-style:preserve-3d;}
 
-/* Book cover */
-.book-cover {background:var(--book); border-radius:10px; width:100%; height:100%; position:absolute; top:0; left:0; backface-visibility:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; box-shadow:0 8px 18px var(--shadow);}
-.book-cover h1 {font-family:'Amatic SC',cursive;font-size:26px; color:#2b1b17; text-align:center; margin-bottom:10px;}
-.tree {width:120px;height:160px; margin-bottom:10px; position:relative;}
-.ornament {position:absolute; width:16px; height:16px; border-radius:50%;}
-/* doodle colors */
-.cake {background:#f4a261; animation:float 3s ease-in-out infinite;}
-.ladybird {background:#e63946; animation:float 2.5s ease-in-out infinite;}
-.tennis {background:#a8dadc; animation:float 3.5s ease-in-out infinite;}
-.cricket {background:#f1faee; animation:float 2.8s ease-in-out infinite;}
-.sausage {background:#e9c46a; animation:float 3.2s ease-in-out infinite;}
-.rope-green {background:#2a9d8f; animation:float 3.1s ease-in-out infinite;}
-.rope-blue {background:#457b9d; animation:float 2.9s ease-in-out infinite;}
-.bike {background:#f72585; animation:float 3.3s ease-in-out infinite;}
-.haircut {background:#7209b7; animation:float 3.4s ease-in-out infinite;}
-@keyframes float {0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-6px) rotate(5deg)}}
+  /* Wrapping paper layer (front) - hand-drawn feel via SVG background below */
+  .wrapping{
+    position:absolute; inset:0; border-radius:16px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.45);
+    transform-origin:center center; transition: transform 1s cubic-bezier(.2,.9,.25,1), opacity 0.6s ease;
+    z-index:30; display:flex; align-items:center; justify-content:center; flex-direction:column;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.05));
+  }
 
-/* Pages */
-.pages {position:absolute; width:100%; height:100%; top:0; left:0; transform-style:preserve-3d; transition: transform 1s ease; display:flex; overflow:hidden;}
-.page {min-width:100%; height:100%; background:var(--book); border-radius:10px; padding:20px; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; backface-visibility:hidden; position:relative; box-shadow:0 6px 16px var(--shadow);}
-.month-title {font-family:'Amatic SC',cursive; font-size:22px; margin-bottom:12px; color:#2b1b17;}
-.polaroids {display:flex; flex-wrap:wrap; gap:12px; justify-content:center;}
-.polaroid {width:80px; height:100px; background:#fff; border-radius:6px; box-shadow:0 4px 10px rgba(0,0,0,0.3); perspective:600px; cursor:pointer; position:relative;}
-.card {width:100%; height:100%; position:absolute; transform-style:preserve-3d; transition: transform 0.8s;}
-.card.flipped {transform: rotateY(180deg);}
-.front, .back {position:absolute; inset:0; backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:6px;}
-.front {background:#fff;}
-.back {background:#f4f1de; transform:rotateY(180deg); font-size:12px; text-align:center; padding:4px; color:#2b1b17;}
+  /* We draw a hand-drawn wrapping-paper-like SVG as background inside this element */
+  .wrapping .paper {
+    position:absolute; inset:0; background: repeating-linear-gradient(45deg, rgba(255,240,230,0.04) 0 14px, rgba(0,0,0,0.02) 14px 28px);
+  }
+  /* ribbon across the book */
+  .ribbon { position:absolute; top: 42%; left:0; right:0; height:70px; display:flex; justify-content:center; transform:translateY(-50%); pointer-events:none;}
+  .ribbon .band{width:98%; height:30px; background:linear-gradient(90deg,#ffd08a,#f1a66a); border-radius:6px; box-shadow:0 6px 12px rgba(0,0,0,0.18); transform:rotate(-3deg); opacity:0.95}
+  .ribbon .band.v{position:absolute; height:98%; width:24px; left:48%; transform:translateX(-50%) rotate(8deg); background:linear-gradient(180deg,#ffd08a,#f1a66a); border-radius:6px}
 
-/* page nav */
-.nav {position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; background:rgba(0,0,0,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; font-size:24px; user-select:none;}
-.nav-left {left:-50px;}
-.nav-right {right:-50px;}
+  /* sticker */
+  .sticker{
+    width:86px;height:86px;border-radius:999px;background:var(--sticker);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 22px rgba(0,0,0,0.25), inset 0 -6px 18px rgba(0,0,0,0.06);
+    position:relative; z-index:32; cursor:pointer; transform:translateY(0);
+    transition: transform .28s cubic-bezier(.2,.9,.25,1);
+    user-select:none;
+    animation: sticker-bounce 2400ms infinite;
+  }
+  .sticker:after{content:'';position:absolute;inset:6px;border-radius:999px;background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08)); mix-blend-mode:overlay}
+  .sticker .icon{font-size:34px}
+  @keyframes sticker-bounce {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+  }
+  .sticker:hover{transform:translateY(-10px) scale(1.03); animation-play-state:paused}
 
-/* tooltip */
-.doodle {position:absolute; width:24px; height:24px; border-radius:4px; cursor:pointer;}
-.tooltip {position:absolute; background:rgba(0,0,0,0.7); color:#fff; padding:2px 6px; font-size:10px; border-radius:4px; pointer-events:none; opacity:0; transition:opacity 0.3s;}
+  /* small "instructions" label on top of wrapping */
+  .wrapping .label{position:absolute; top:14%; width:90%; text-align:center; font-family:'Amatic SC',cursive; font-size:20px; color:#fff; text-shadow:0 1px 0 rgba(0,0,0,0.5)}
+
+  /* Unwrap state - move the wrapping off */
+  .book-scene.unwrapped .wrapping{
+    transform: translateY(-22%) rotateX(18deg) scale(1.06); opacity:0;
+    pointer-events:none;
+  }
+
+  /* Book element, revealed after unwrap */
+  .book{
+    position:absolute; inset:40px; border-radius:12px; background:linear-gradient(180deg,#fffdf6,#f6eee3); box-shadow:0 32px 60px rgba(0,0,0,0.45);
+    transform-origin: left center; transform: translateZ(-60px) rotateY(0deg); transition: transform 900ms cubic-bezier(.2,.9,.25,1);
+    display:flex; flex-direction:column; overflow:hidden; z-index:20;
+  }
+  /* closed book cover visible before opening pages */
+  .book.cover-hidden{opacity:0; transform: translateZ(-60px) rotateY(-6deg)}
+  .book .cover{
+    height:100%; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:28px; box-sizing:border-box;
+    background: linear-gradient(180deg,#fffdf6,#f3e9d8);
+  }
+  .title{font-family:'Amatic SC',cursive; font-size:34px; color:#2b1b17; text-align:center}
+  .cover .tree { width:220px; height:260px; position:relative; margin:6px 0;}
+  /* ornaments on the tree (small circles we can position) */
+  .tree .orn{position:absolute;width:28px;height:28px;border-radius:50%;box-shadow:0 4px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+  /* doodles container */
+  .cover .doodles{position:absolute; left:14px; top:14px; right:14px; bottom:14px; pointer-events:none}
+
+  /* open book pages area */
+  .book-pages{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; perspective:1400px;
+    pointer-events:none; visibility:hidden;
+  }
+  .book-pages.visible{pointer-events:auto; visibility:visible}
+  .book-inner{width:100%; height:100%; display:flex; transform-style:preserve-3d; transition: transform 900ms cubic-bezier(.2,.9,.25,1);}
+
+  /* single page (month) */
+  .page{
+    min-width:100%; height:100%; box-sizing:border-box; padding:26px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:10px;
+    backface-visibility:hidden;
+  }
+  .month-header{display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px}
+  .month-label{font-family:'Amatic SC',cursive; font-size:22px; color:#2b1b17}
+  .page .doodle-cluster{position:absolute; right:18px; bottom:16px; display:flex; gap:8px; pointer-events:none}
+
+  /* Polaroid grid inside each page */
+  .polaroid-grid{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; align-content:flex-start; padding-bottom:28px}
+  .polaroid{
+    width:140px; height:170px; background:#fff; border-radius:8px; box-shadow:0 8px 16px rgba(0,0,0,0.18); padding:10px; box-sizing:border-box; perspective:900px; cursor:pointer; position:relative;
+  }
+  .photo-card{width:100%; height:100%; position:relative; transform-style:preserve-3d; transition: transform 700ms; border-radius:6px;}
+  .photo-card.flipped{transform:rotateY(180deg)}
+  .photo-front, .photo-back{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; backface-visibility:hidden; border-radius:6px; overflow:hidden;}
+  .photo-front{background:#f0f0f0; font-size:14px; color:#666; display:flex; align-items:center; justify-content:center}
+  .photo-front .fake{width:120px;height:96px;background:linear-gradient(180deg,#ddd,#bbb); border-radius:4px; display:flex; align-items:center; justify-content:center; color:#6f6f6f;}
+  .photo-back{transform:rotateY(180deg); padding:8px; background:linear-gradient(180deg,#fbf6ee,#f6efe4); color:#2b1b17; font-size:13px; text-align:center}
+
+  /* page navigation arrows */
+  .nav{position:absolute; top:50%; transform:translateY(-50%); width:52px; height:52px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; box-shadow:0 8px 18px rgba(0,0,0,0.35); cursor:pointer; user-select:none; z-index:50; background:linear-gradient(180deg,#4f8bff,#3266ff)}
+  .nav.left{left:-28px}
+  .nav.right{right:-28px}
+
+  /* doodles (small icons) */
+  .doodle{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;box-shadow:0 6px 12px rgba(0,0,0,0.18); cursor:pointer; position:relative}
+  .doodle.small{width:28px;height:28px;font-size:12px}
+  .doodle.tooltip-target{pointer-events:auto}
+  .tooltip{position:fixed;padding:6px 8px;background:rgba(0,0,0,0.78);color:#fff;border-radius:6px;font-size:12px;pointer-events:none;opacity:0;transform:translateY(-6px);transition: all .18s ease;}
+
+  /* responsive */
+  @media (max-width:920px){
+    #bookRoot{height:82vh}
+    .polaroid{width:120px; height:150px}
+  }
+  @media (max-width:560px){
+    #bookRoot{width:96vw; height:86vh}
+    .nav{display:none}
+    .polaroid{width:110px;height:140px}
+  }
 </style>
 </head>
 <body>
-<div class="snow" id="snow"></div>
-<div id="wrapper">
-  <div class="book-wrapper" id="bookWrapper">
-    <div class="wrapped" id="wrapped">
-      <div>Click the sticker to unwrap your digital yearbook!</div>
-      <div class="sticker" id="sticker">🎁</div>
+  <div class="stage">
+    <div id="bookRoot" aria-live="polite">
+      <div class="book-scene" id="scene">
+
+        <!-- Wrapping (front-most) -->
+        <div class="wrapping" id="wrapping">
+          <div class="paper" aria-hidden="true">
+            <!-- hand-drawn-ish decorations layered with small inline SVGs for a playful look -->
+            <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" style="display:block">
+              <!-- background color -->
+              <rect width="100%" height="100%" fill="#d94b3b"/>
+              <!-- loose stars & stripes pattern (hand-drawn feel) -->
+              <g fill="none" stroke="#ffdf9e" stroke-width="6" stroke-linecap="round">
+                <path d="M40 80c80-40 160 20 240-10s160-40 240 10 160-30 240 0" opacity="0.12"/>
+                <path d="M0 200c120-40 240 20 360-10s240-40 360 10 240-30 360 0" opacity="0.06"/>
+              </g>
+              <!-- some star shapes -->
+              <g transform="translate(40,40)" fill="#ffd98a" opacity="0.95">
+                <circle cx="24" cy="24" r="6"/><circle cx="120" cy="90" r="9"/><circle cx="310" cy="48" r="8"/>
+                <circle cx="500" cy="96" r="10"/><circle cx="700" cy="44" r="7"/>
+              </g>
+              <!-- holly & candy stripes -->
+              <g transform="translate(60,420)" opacity="0.85">
+                <rect width="680" height="30" fill="#f6c797" rx="6"/>
+                <path d="M80 0 q20 -18 40 0 q20 -18 40 0" fill="#bde4c5" opacity="0.8"></path>
+              </g>
+            </svg>
+          </div>
+
+          <div class="ribbon" aria-hidden="true">
+            <div class="band"></div>
+            <div class="band v"></div>
+          </div>
+
+          <div class="sticker" id="sticker" role="button" tabindex="0" aria-label="Click to unwrap the book">
+            <div class="icon">🎁</div>
+          </div>
+
+          <div class="label">Click the sticker to unwrap your yearbook — I've moved into the digital space!</div>
+        </div>
+
+        <!-- Book object -->
+        <div class="book" id="book" aria-hidden="true" role="application" aria-label="Yearbook">
+          <!-- Cover (shows before opening) -->
+          <div class="cover" id="coverView">
+            <div class="title">A Year of Memories</div>
+
+            <div class="tree" id="coverTree" aria-hidden="true">
+              <!-- SVG-style stylized tree -->
+              <svg viewBox="0 0 200 260" width="220" height="260" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2.2" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
+                <g transform="translate(10,0)">
+                  <rect x="82" y="210" width="36" height="30" rx="4" fill="#6b3d2b"></rect>
+                  <path d="M100 30 L52 120 L78 120 L36 188 L164 188 L122 120 L148 120 L100 30" fill="#1f6b2a" stroke="#0f3a18" stroke-width="1.5"/>
+                  <!-- ornaments (we'll position some items as icons) -->
+                  <circle cx="96" cy="98" r="8" fill="#ffd56b" filter="url(#glow)"/>
+                  <circle cx="78" cy="132" r="8" fill="#ffb3b3" filter="url(#glow)"/>
+                  <circle cx="116" cy="132" r="8" fill="#bfe1ff" filter="url(#glow)"/>
+                  <circle cx="100" cy="156" r="8" fill="#c6ffd6" filter="url(#glow)"/>
+                  <!-- simple bike icon -->
+                  <g transform="translate(65,150) scale(.9)" stroke="#2b1b17" stroke-width="1.4" fill="none">
+                    <circle cx="8" cy="8" r="6" stroke-linecap="round"/>
+                    <circle cx="30" cy="8" r="6"/>
+                    <path d="M8 8 L18 2 L30 8" />
+                  </g>
+                  <!-- rope shaped ornament -->
+                  <path d="M134 82 q6 12 0 24 q-10 18 -30 8" stroke="#2a9d8f" stroke-width="3" fill="none" stroke-linecap="round"/>
+                </g>
+              </svg>
+            </div>
+
+            <div style="margin-top:6px;color:#6b4d42;font-size:14px;text-align:center;max-width:78%">Decorated with my favourite things — click the cover to open the book</div>
+          </div>
+
+          <!-- Pages (hidden until cover clicked) -->
+          <div class="book-pages" id="bookPages" aria-hidden="true">
+            <div class="nav left" id="navLeft" role="button" aria-label="Previous month" tabindex="0">&#9664;</div>
+            <div class="nav right" id="navRight" role="button" aria-label="Next month" tabindex="0">&#9654;</div>
+
+            <div class="book-inner" id="bookInner" style="transform:translateX(0%)">
+              <!-- Pages inserted by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
-    <div class="book-cover" id="bookCover" style="display:none;">
-      <h1>A Year of Memories</h1>
-      <div class="tree" id="tree"></div>
-      <div>Click to open the book</div>
-    </div>
-    <div class="pages" id="pages" style="display:none;"></div>
   </div>
-</div>
-<div class="tooltip" id="tooltip">Tooltip</div>
+
+  <!-- tooltip used for doodles -->
+  <div id="tooltip" class="tooltip" aria-hidden="true">Your text here</div>
+
 <script>
-// Snow generation
-const snow = document.getElementById('snow');
-for(let i=0;i<80;i++){let s=document.createElement('div');s.style.left=Math.random()*100+'%';s.style.animationDuration=(3+Math.random()*5)+'s';s.style.width=s.style.height=(2+Math.random()*4)+'px';snow.appendChild(s);}
+/* ========= Utilities & initial state ========= */
+const scene = document.getElementById('scene');
+const sticker = document.getElementById('sticker');
+const wrapping = document.getElementById('wrapping');
+const book = document.getElementById('book');
+const coverView = document.getElementById('coverView');
+const bookPages = document.getElementById('bookPages');
+const bookInner = document.getElementById('bookInner');
+const tooltip = document.getElementById('tooltip');
 
-// Sticker unwrap
-const sticker=document.getElementById('sticker');
-const wrapped=document.getElementById('wrapped');
-const bookCover=document.getElementById('bookCover');
-const bookWrapper=document.getElementById('bookWrapper');
-sticker.addEventListener('click',()=>{
-  wrapped.style.transform='rotateY(90deg)';
-  setTimeout(()=>{wrapped.style.display='none'; bookCover.style.display='flex';},800);
-});
+let isUnwrapped = false;
+let isOpen = false;
+let currentIndex = 0;
 
-// Book cover open
-const pages=document.getElementById('pages');
-bookCover.addEventListener('click',()=>{
-  bookCover.style.transform='rotateY(90deg)';
-  setTimeout(()=>{bookCover.style.display='none'; pages.style.display='flex';},800);
-});
+/* ========== animation: unwrap wrapping paper ========== */
+function unwrapAnimation(){
+  if(isUnwrapped) return;
+  isUnwrapped = true;
+  // add class to scene so CSS moves wrapping away
+  scene.classList.add('unwrapped');
 
-// Tree doodles
-const tree=document.getElementById('tree');
-const doodles=[{class:'cake',tooltip:'Your text here'},{class:'ladybird',tooltip:'Your text here'},{class:'tennis',tooltip:'Your text here'},{class:'cricket',tooltip:'Your text here'},{class:'sausage',tooltip:'Your text here'},{class:'rope-green',tooltip:'Your text here'},{class:'rope-blue',tooltip:'Your text here'},{class:'bike',tooltip:'Your text here'},{class:'haircut',tooltip:'Your text here'}];
-doodles.forEach(d=>{let el=document.createElement('div');el.className='ornament doodle '+d.class);el.dataset.tooltip=d.tooltip;el.style.top=Math.random()*100+'px';el.style.left=Math.random()*100+'px';tree.appendChild(el);});
+  // animate the wrapping element: slide/fade then hide
+  wrapping.style.transition = 'transform 850ms cubic-bezier(.2,.9,.25,1), opacity 550ms ease';
+  wrapping.style.transform = 'translateY(-22%) rotateX(18deg) scale(1.06)';
+  wrapping.style.opacity = '0';
+  setTimeout(()=>{ wrapping.style.display = 'none'; revealCover(); }, 700);
+}
 
-// Tooltip
-const tooltip=document.getElementById('tooltip');
-document.addEventListener('mousemove',e=>{
-  tooltip.style.top=e.pageY+15+'px';
-  tooltip.style.left=e.pageX+15+'px';
-});
-document.addEventListener('mouseover',e=>{if(e.target.classList.contains('doodle')){tooltip.innerText=e.target.dataset.tooltip; tooltip.style.opacity=1;} });
-document.addEventListener('mouseout',e=>{if(e.target.classList.contains('doodle')){tooltip.style.opacity=0;} });
+/* ========== reveal cover ========== */
+function revealCover(){
+  // show the book object
+  book.style.transform = 'translateZ(0px) rotateY(0deg)';
+  book.setAttribute('aria-hidden','false');
+  // tiny entrance animation
+  book.style.transition = 'transform 700ms cubic-bezier(.2,.9,.25,1), opacity 600ms ease';
+  book.style.opacity = '1';
+  // make cover clickable
+  coverView.style.cursor = 'pointer';
+  coverView.addEventListener('click', openBook);
+  coverView.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') openBook(); });
+}
 
-// Pages content
-const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let currentPage=0;
-months.forEach(month=>{
-  let page=document.createElement('div');page.className='page';
-  let title=document.createElement('div');title.className='month-title';title.innerText=month; page.appendChild(title);
-  let polaroids=document.createElement('div');polaroids.className='polaroids';
-  for(let i=1;i<=5;i++){
-    let pol=document.createElement('div');pol.className='polaroid';
-    let card=document.createElement('div');card.className='card';
-    let front=document.createElement('div');front.className='front'; front.innerText='Photo';
-    let back=document.createElement('div');back.className='back'; back.innerText='Caption';
-    card.appendChild(front); card.appendChild(back); pol.appendChild(card);
-    pol.addEventListener('click',()=>{card.classList.toggle('flipped');});
-    polaroids.appendChild(pol);
+/* ========== open the book - show pages ========== */
+function openBook(){
+  if(isOpen) return;
+  isOpen = true;
+  // animate cover to the side, then reveal pages
+  coverView.style.transform = 'rotateY(-100deg) translateX(-40px)';
+  coverView.style.transition = 'transform 850ms cubic-bezier(.2,.9,.25,1)';
+  setTimeout(()=>{
+    coverView.style.display = 'none';
+    bookPages.classList.add('visible');
+    bookPages.setAttribute('aria-hidden','false');
+    buildPages();            // create pages content
+    showPage(0);
+  }, 700);
+}
+
+/* ========== build pages (12 months with 5 polaroids each) ========== */
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function buildPages(){
+  bookInner.innerHTML = ''; // clear
+  months.forEach((m,mi)=> {
+    const page = document.createElement('section');
+    page.className = 'page';
+    page.setAttribute('aria-label', m + ' page');
+
+    // header
+    const header = document.createElement('div');
+    header.className = 'month-header';
+    const label = document.createElement('div');
+    label.className = 'month-label';
+    label.innerText = m;
+    header.appendChild(label);
+    page.appendChild(header);
+
+    // polaroid grid
+    const grid = document.createElement('div');
+    grid.className = 'polaroid-grid';
+    // 5 placeholders
+    for(let i=0;i<5;i++){
+      const pol = document.createElement('div'); pol.className='polaroid'; pol.setAttribute('tabindex','0');
+      const card = document.createElement('div'); card.className='photo-card';
+      const front = document.createElement('div'); front.className='photo-front';
+      const fake = document.createElement('div'); fake.className='fake'; fake.innerText = `${m} • Photo ${i+1}`;
+      front.appendChild(fake);
+      const back = document.createElement('div'); back.className='photo-back';
+      back.innerText = `Caption placeholder — click to flip back.\nYour text here.`;
+      card.appendChild(front); card.appendChild(back);
+      pol.appendChild(card);
+
+      // flip on click or Enter/Space
+      pol.addEventListener('click', ()=> card.classList.toggle('flipped'));
+      pol.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); card.classList.toggle('flipped'); } });
+
+      grid.appendChild(pol);
+    }
+    page.appendChild(grid);
+
+    // doodle cluster bottom-right (some animated small items)
+    const cluster = document.createElement('div'); cluster.className='doodle-cluster';
+    const doodleList = [
+      {emoji:'🍰', txt:'Cake — your text here'},
+      {emoji:'🐞', txt:'Ladybird — your text here'},
+      {emoji:'🎾', txt:'Tennis moments'},
+      {emoji:'🏏', txt:'Cricket'},
+      {emoji:'🥐', txt:'Sausage roll'},
+      {emoji:'🧗‍♀️', txt:'Climbing rope (green)'},
+      {emoji:'🧗‍♂️', txt:'Climbing rope (blue)'},
+      {emoji:'🚲', txt:'Bike'},
+      {emoji:'💇‍♂️', txt:'Haircut chair'}
+    ];
+    // Put three doodles per page (cyclic) to avoid crowding — full set appears across book cover as well
+    for(let k=0;k<3;k++){
+      const dd = doodleList[(mi*3 + k) % doodleList.length];
+      const d = document.createElement('div'); d.className='doodle small tooltip-target';
+      d.innerText = dd.emoji;
+      d.setAttribute('data-tip', dd.txt);
+      // floating animation via JS randomization later
+      cluster.appendChild(d);
+    }
+    page.appendChild(cluster);
+
+    // append page to bookInner
+    bookInner.appendChild(page);
+  });
+
+  // attach nav listeners
+  document.getElementById('navLeft').onclick = ()=> showPage(currentIndex-1);
+  document.getElementById('navRight').onclick = ()=> showPage(currentIndex+1);
+  // keyboard nav
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowLeft') showPage(currentIndex-1);
+    if(e.key === 'ArrowRight') showPage(currentIndex+1);
+  });
+
+  // make doodles tooltip-aware
+  document.querySelectorAll('.tooltip-target').forEach(el=>{
+    el.addEventListener('mouseenter', (ev)=>{
+      tooltip.innerText = el.dataset.tip || 'Your text here';
+      tooltip.style.opacity = '1'; tooltip.style.transform = 'translateY(0px)';
+      const rect = el.getBoundingClientRect();
+      tooltip.style.left = (rect.left + rect.width/2) + 'px';
+      tooltip.style.top = (rect.top - 36) + 'px';
+    });
+    el.addEventListener('mouseleave', ()=>{ tooltip.style.opacity = '0'; tooltip.style.transform = 'translateY(-6px)'; });
+  });
+
+  // gentle random float for small doodles
+  document.querySelectorAll('.doodle').forEach((d,i)=>{
+    const delay = (Math.random()*1.2).toFixed(2);
+    d.style.transition = `transform 1200ms ease-in-out ${delay}s`;
+    setInterval(()=>{ const s = (Math.random()*7 - 3).toFixed(2); d.style.transform = `translateY(${s}px)`; }, 1600 + Math.random()*1600);
+  });
+}
+
+/* ========== page navigation (horizontal flip simulation) ========== */
+function showPage(idx){
+  if(idx < 0) idx = months.length - 1;
+  if(idx >= months.length) idx = 0;
+  currentIndex = idx;
+  // move bookInner horizontally
+  bookInner.style.transform = `translateX(-${idx * 100}%)`;
+  // subtle 3D page-curl flick
+  bookInner.style.transition = 'transform 700ms cubic-bezier(.2,.9,.25,1)';
+}
+
+/* ========== sticker click handlers ========== */
+sticker.addEventListener('click', unwrapAnimation);
+sticker.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') unwrapAnimation(); });
+
+/* ========== helpful: allow clicking anywhere on cover to open once unwrapped ========== */
+coverView.addEventListener('click', openBook);
+
+/* ========== initial decorative sparkles (snow + sparkles) ========== */
+(function makeSparkles(){
+  const container = document.createElement('div'); container.className='sparkles';
+  for(let i=0;i<40;i++){
+    const sp = document.createElement('div');
+    sp.style.position='absolute';
+    sp.style.left = (Math.random()*100)+'%';
+    sp.style.top = (Math.random()*100)+'%';
+    sp.style.width = sp.style.height = (2 + Math.random()*6) + 'px';
+    sp.style.background = 'rgba(255,255,255,' + (0.6+Math.random()*0.4) + ')';
+    sp.style.borderRadius = '50%';
+    sp.style.filter = 'blur(0.6px)';
+    sp.style.opacity = 0.9;
+    const dur = (3 + Math.random()*6).toFixed(2) + 's';
+    sp.style.transition = 'transform ' + dur + ' linear';
+    container.appendChild(sp);
+    // velocity loop
+    setInterval(()=>{ sp.style.transform = `translateY(${30 + Math.random()*12}px) translateX(${Math.random()*6-3}px)`; sp.style.opacity = (0.6+Math.random()*0.4); }, 2000 + Math.random()*2400);
   }
-  page.appendChild(polaroids);
-  pages.appendChild(page);
-});
+  document.body.appendChild(container);
+})();
 
-// Navigation arrows
-const navLeft=document.createElement('div');navLeft.className='nav nav-left';navLeft.innerHTML='&#8592;';
-const navRight=document.createElement('div');navRight.className='nav nav-right';navRight.innerHTML='&#8594;';
-pages.appendChild(navLeft); pages.appendChild(navRight);
-function showPage(idx){ pages.style.transform=`translateX(-${idx*100}%)`; }
-navLeft.addEventListener('click',()=>{currentPage=(currentPage-1+months.length)%months.length; showPage(currentPage);});
-navRight.addEventListener('click',()=>{currentPage=(currentPage+1)%months.length; showPage(currentPage);});
-document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){navLeft.click();} if(e.key==='ArrowRight'){navRight.click();} });
+/* ========== Accessibility: ensure focusable and announce changes ========== */
+sticker.setAttribute('aria-pressed','false');
+sticker.addEventListener('click', ()=> sticker.setAttribute('aria-pressed','true') );
+
+/* ========== small note: replace placeholder photos later ========= */
+/* To use your own photos: replace the .fake element inside each .photo-front with an <img src="yourphoto.jpg"> (and upload the files to your repo) */
+
 </script>
 </body>
 </html>
